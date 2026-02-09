@@ -1,0 +1,27 @@
+{
+  "total_domains": 959115,
+  "with_popularity_rank": 38876,
+  "with_descriptions": 931921,
+  "categories": {
+    "Business": 223548,
+    "Society": 133004,
+    "Arts": 113995,
+    "Shopping": 86904,
+    "Computers": 79628,
+    "Recreation": 73283,
+    "Sports": 58608,
+    "Science": 44236,
+    "Health": 39367,
+    "Reference": 28328,
+    "Adult": 22257,
+    "Games": 19018,
+    "Kids": 18456,
+    "Home": 12055,
+    "News": 6428
+  },
+  "data_sources": [
+    "DMOZ/Open Directory Project (URL Classification - 1.56M URLs)",
+    "DMOZ descriptions (1.19M titled entries)",
+    "Majestic Million (top website rankings)"
+  ]
+}
