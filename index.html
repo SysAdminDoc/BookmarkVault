@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookmarkVault v0.0.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-tertiary: #1a1a26;
+  --bg-card: #16161f;
+  --bg-card-hover: #1e1e2a;
+  --bg-glass: rgba(22, 22, 31, 0.7);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --text-primary: #e8e8ed;
+  --text-secondary: #8888a0;
+  --text-muted: #55556a;
+  --accent: #6c5ce7;
+  --accent-glow: rgba(108, 92, 231, 0.3);
+  --accent-hover: #7c6ef7;
+  --green: #00d2a0;
+  --green-glow: rgba(0, 210, 160, 0.2);
+  --red: #ff5572;
+  --red-glow: rgba(255, 85, 114, 0.2);
+  --orange: #ffa234;
+  --blue: #4ea0ff;
+  --pink: #f772b6;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.6);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* Layout */
+.app { display: flex; height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+  box-shadow: 0 2px 12px var(--accent-glow);
+}
+
+.logo-version {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-left: auto;
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.nav-section {
+  margin-bottom: 8px;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  padding: 8px 12px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.nav-item.active { background: rgba(108, 92, 231, 0.12); color: var(--accent-hover); }
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 18px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+.nav-item.active svg { opacity: 1; }
+
+.nav-item .count {
+  margin-left: auto;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-tertiary);
+  padding: 1px 7px;
+  border-radius: 10px;
+  color: var(--text-muted);
+}
+
+.nav-item.active .count { background: rgba(108, 92, 231, 0.2); color: var(--accent); }
+
+/* Bookmark folders in sidebar */
+.folder-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.folder-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.folder-item.active { background: rgba(108, 92, 231, 0.12); color: var(--accent-hover); }
+
+.folder-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.folder-item .count {
+  margin-left: auto;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+}
+
+.folder-actions {
+  display: none;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.folder-item:hover .folder-actions { display: flex; }
+.folder-item:hover .count { display: none; }
+
+.folder-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.folder-action-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+.folder-action-btn.delete:hover { color: var(--red); }
+.folder-action-btn svg { width: 14px; height: 14px; }
+
+.add-folder-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  margin-top: 4px;
+  background: none;
+  width: 100%;
+}
+
+.add-folder-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(108, 92, 231, 0.05); }
+.add-folder-btn svg { width: 16px; height: 16px; }
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+.sidebar-footer-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.sidebar-footer-btn svg { width: 18px; height: 18px; opacity: 0.7; }
+
+.sidebar-footer-btn.export-btn {
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  color: white;
+  font-weight: 500;
+}
+
+.sidebar-footer-btn.export-btn:hover {
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.sidebar-footer-btn.export-btn svg { opacity: 1; }
+
+/* Main content */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.search-container {
+  flex: 1;
+  max-width: 560px;
+  position: relative;
+}
+
+.search-container svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px 10px 42px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+.view-toggles {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+
+.view-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-toggle:hover { color: var(--text-secondary); }
+.view-toggle.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.view-toggle svg { width: 18px; height: 18px; }
+
+.topbar-stats {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+/* Content area */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.content-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.content-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.category-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.category-tag {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.category-tag:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.category-tag.active { background: rgba(108, 92, 231, 0.15); border-color: var(--accent); color: var(--accent-hover); }
+
+/* Grid view */
+.sites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+/* List view */
+.sites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Site card */
+.site-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  animation: cardIn 0.3s ease both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.site-card:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.site-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.site-favicon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.site-favicon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.site-favicon .fallback {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.site-info { flex: 1; min-width: 0; }
+
+.site-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.site-url {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.site-description {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.site-card-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-tag {
+  font-size: 10.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.site-card-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.site-card:hover .site-card-actions { opacity: 1; }
+
+.site-action-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.site-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(108, 92, 231, 0.1); }
+.site-action-btn.bookmarked { border-color: var(--green); color: var(--green); background: var(--green-glow); }
+.site-action-btn.bookmarked:hover { border-color: var(--red); color: var(--red); background: var(--red-glow); }
+.site-action-btn svg { width: 13px; height: 13px; }
+
+/* List view card */
+.sites-list .site-card {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 16px;
+}
+
+.sites-list .site-card-top { margin-bottom: 0; flex: 0 0 auto; }
+.sites-list .site-description { margin-bottom: 0; flex: 1; -webkit-line-clamp: 1; }
+.sites-list .site-card-bottom { flex: 0 0 auto; }
+.sites-list .site-card-actions { opacity: 0; }
+.sites-list .site-card:hover .site-card-actions { opacity: 1; }
+
+/* My Bookmarks view */
+.bookmarks-view {
+  display: none;
+}
+
+.bookmarks-view.active {
+  display: block;
+}
+
+.bookmark-folder-section {
+  margin-bottom: 24px;
+}
+
+.bookmark-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bookmark-folder-header .folder-color {
+  width: 10px;
+  height: 10px;
+}
+
+.bookmark-folder-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bookmark-folder-header .count {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+}
+
+.bookmark-folder-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.bookmark-folder-body.list-view {
+  grid-template-columns: 1fr;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.3; }
+.empty-state h3 { font-size: 16px; color: var(--text-secondary); margin-bottom: 6px; }
+.empty-state p { font-size: 13px; line-height: 1.6; }
+
+/* Modal / Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-overlay.active { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+.modal h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.modal-field { margin-bottom: 14px; }
+
+.modal-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+
+.modal-field input, .modal-field select {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+
+.modal-field input:focus, .modal-field select:focus { border-color: var(--accent); }
+
+.modal-field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238888a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.modal-field select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.color-picker-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition);
+}
+
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { border-color: white; box-shadow: 0 0 0 2px var(--bg-secondary); }
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 12px var(--accent-glow); }
+
+/* Add bookmark to folder dropdown */
+.folder-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  min-width: 180px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  display: none;
+  animation: fadeIn 0.1s ease;
+}
+
+.folder-dropdown.active { display: block; }
+
+.folder-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+.folder-dropdown-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.folder-dropdown-item .check { color: var(--green); margin-left: auto; }
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+  max-width: 340px;
+}
+
+.toast-icon { flex-shrink: 0; }
+
+@keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+/* Add site form in topbar */
+.add-site-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.add-site-btn:hover { border-color: var(--accent); color: var(--accent); }
+.add-site-btn svg { width: 16px; height: 16px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .content { padding: 16px; }
+  .topbar { padding: 12px 16px; flex-wrap: wrap; }
+  .sites-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        BookmarkVault
+        <span class="logo-version">v0.0.1</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-section">
+        <div class="nav-section-label">Browse</div>
+        <div class="nav-item active" data-view="discover" onclick="switchView('discover')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          Discover
+          <span class="count" id="discoverCount">0</span>
+        </div>
+        <div class="nav-item" data-view="bookmarks" onclick="switchView('bookmarks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          My Bookmarks
+          <span class="count" id="bookmarkCount">0</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Folders</div>
+        <div id="folderList"></div>
+        <button class="add-folder-btn" onclick="openNewFolderModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Folder
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" onclick="openImportModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Import Bookmarks
+      </button>
+      <button class="sidebar-footer-btn export-btn" onclick="exportBookmarks()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Export Bookmarks
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="search-container">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search sites, categories, tags..." oninput="handleSearch()">
+      </div>
+      <button class="add-site-btn" onclick="openAddSiteModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Site
+      </button>
+      <div class="view-toggles">
+        <button class="view-toggle active" data-view="grid" onclick="setViewMode('grid')" title="Grid view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="view-toggle" data-view="list" onclick="setViewMode('list')" title="List view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="topbar-stats" id="topbarStats">0 sites</div>
+    </div>
+
+    <div class="content" id="contentArea">
+      <!-- Discover view -->
+      <div id="discoverView">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Discover</div>
+            <div class="content-subtitle">Browse and bookmark websites from the directory</div>
+          </div>
+        </div>
+        <div class="category-tags" id="categoryTags"></div>
+        <div class="sites-grid" id="sitesContainer"></div>
+      </div>
+
+      <!-- Bookmarks view -->
+      <div class="bookmarks-view" id="bookmarksView">
+        <div class="content-header">
+          <div>
+            <div class="content-title">My Bookmarks</div>
+            <div class="content-subtitle">Manage your saved sites and folders</div>
+          </div>
+        </div>
+        <div id="bookmarksFolderContent"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()"></div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Hidden file input for import -->
+<input type="file" id="importFileInput" accept=".html,.htm" style="display:none" onchange="handleImportFile(event)">
+
+<script>
+// ===================== DATA =====================
+
+const FOLDER_COLORS = ['#6c5ce7','#00d2a0','#ff5572','#ffa234','#4ea0ff','#f772b6','#a29bfe','#fdcb6e','#e17055','#00cec9'];
+
+const DEFAULT_SITES = [
+  // Development
+  { name: "GitHub", url: "https://github.com", desc: "Code hosting platform for version control and collaboration.", category: "Development", tags: ["git","code","open-source"] },
+  { name: "Stack Overflow", url: "https://stackoverflow.com", desc: "Q&A community for developers to learn and share knowledge.", category: "Development", tags: ["q&a","coding","community"] },
+  { name: "MDN Web Docs", url: "https://developer.mozilla.org", desc: "Comprehensive documentation for web technologies.", category: "Development", tags: ["docs","web","reference"] },
+  { name: "CodePen", url: "https://codepen.io", desc: "Social development environment for front-end designers and developers.", category: "Development", tags: ["frontend","sandbox","css"] },
+  { name: "Dev.to", url: "https://dev.to", desc: "Community of software developers sharing ideas and growing together.", category: "Development", tags: ["blog","community","articles"] },
+  { name: "Hacker News", url: "https://news.ycombinator.com", desc: "Social news website focusing on computer science and entrepreneurship.", category: "Development", tags: ["news","tech","startups"] },
+  { name: "GitLab", url: "https://gitlab.com", desc: "DevSecOps platform for the complete software development lifecycle.", category: "Development", tags: ["devops","ci-cd","git"] },
+  { name: "NPM", url: "https://www.npmjs.com", desc: "Package manager for JavaScript and the world's largest software registry.", category: "Development", tags: ["packages","node","javascript"] },
+  { name: "Can I Use", url: "https://caniuse.com", desc: "Browser compatibility tables for modern web technologies.", category: "Development", tags: ["compatibility","browsers","css"] },
+  { name: "Replit", url: "https://replit.com", desc: "Collaborative browser-based IDE for building and deploying apps.", category: "Development", tags: ["ide","cloud","collaborative"] },
+
+  // Design
+  { name: "Dribbble", url: "https://dribbble.com", desc: "Community for designers to share, grow, and get hired.", category: "Design", tags: ["portfolio","ui","inspiration"] },
+  { name: "Behance", url: "https://www.behance.net", desc: "Platform to showcase and discover creative work.", category: "Design", tags: ["portfolio","creative","adobe"] },
+  { name: "Figma", url: "https://www.figma.com", desc: "Collaborative interface design tool for teams.", category: "Design", tags: ["ui","prototyping","collaborative"] },
+  { name: "Unsplash", url: "https://unsplash.com", desc: "Beautiful free images and photos contributed by creators.", category: "Design", tags: ["photos","free","stock"] },
+  { name: "Coolors", url: "https://coolors.co", desc: "Fast color palette generator for designers.", category: "Design", tags: ["colors","palette","generator"] },
+  { name: "Awwwards", url: "https://www.awwwards.com", desc: "Awards celebrating the best of web design and development.", category: "Design", tags: ["awards","inspiration","web"] },
+  { name: "Font Awesome", url: "https://fontawesome.com", desc: "Icon library and toolkit used by millions of designers.", category: "Design", tags: ["icons","fonts","toolkit"] },
+  { name: "Google Fonts", url: "https://fonts.google.com", desc: "Free, open-source font library for web and print.", category: "Design", tags: ["fonts","typography","free"] },
+
+  // AI & Machine Learning
+  { name: "Hugging Face", url: "https://huggingface.co", desc: "Platform for sharing and discovering AI models and datasets.", category: "AI & ML", tags: ["models","nlp","open-source"] },
+  { name: "OpenAI", url: "https://openai.com", desc: "AI research company building safe and beneficial AI systems.", category: "AI & ML", tags: ["gpt","research","api"] },
+  { name: "Anthropic", url: "https://www.anthropic.com", desc: "AI safety company building reliable and steerable AI systems.", category: "AI & ML", tags: ["claude","safety","research"] },
+  { name: "Kaggle", url: "https://www.kaggle.com", desc: "Data science community with competitions, datasets, and notebooks.", category: "AI & ML", tags: ["data-science","competitions","datasets"] },
+  { name: "Papers With Code", url: "https://paperswithcode.com", desc: "Machine learning papers with code, datasets, and benchmarks.", category: "AI & ML", tags: ["research","papers","benchmarks"] },
+  { name: "Replicate", url: "https://replicate.com", desc: "Run open-source machine learning models with a cloud API.", category: "AI & ML", tags: ["api","models","cloud"] },
+  { name: "Ollama", url: "https://ollama.com", desc: "Run large language models locally on your machine.", category: "AI & ML", tags: ["local","llm","open-source"] },
+
+  // Productivity
+  { name: "Notion", url: "https://www.notion.so", desc: "All-in-one workspace for notes, docs, and project management.", category: "Productivity", tags: ["notes","workspace","wiki"] },
+  { name: "Obsidian", url: "https://obsidian.md", desc: "Knowledge base that works on local Markdown files.", category: "Productivity", tags: ["notes","markdown","knowledge"] },
+  { name: "Linear", url: "https://linear.app", desc: "Issue tracking and project management for modern teams.", category: "Productivity", tags: ["issues","project-mgmt","agile"] },
+  { name: "Todoist", url: "https://todoist.com", desc: "Task manager and to-do list app for organizing work and life.", category: "Productivity", tags: ["tasks","to-do","organization"] },
+  { name: "Trello", url: "https://trello.com", desc: "Visual project management with boards, lists, and cards.", category: "Productivity", tags: ["boards","kanban","teams"] },
+  { name: "Excalidraw", url: "https://excalidraw.com", desc: "Virtual collaborative whiteboard for sketching diagrams.", category: "Productivity", tags: ["whiteboard","diagrams","sketching"] },
+
+  // Security & Privacy
+  { name: "Have I Been Pwned", url: "https://haveibeenpwned.com", desc: "Check if your email or phone has been in a data breach.", category: "Security", tags: ["breach","privacy","check"] },
+  { name: "VirusTotal", url: "https://www.virustotal.com", desc: "Analyze suspicious files, URLs, and IPs for malware.", category: "Security", tags: ["malware","scanning","analysis"] },
+  { name: "Shodan", url: "https://www.shodan.io", desc: "Search engine for internet-connected devices.", category: "Security", tags: ["iot","search","recon"] },
+  { name: "CyberChef", url: "https://gchq.github.io/CyberChef", desc: "Web app for encryption, encoding, compression, and data analysis.", category: "Security", tags: ["encoding","crypto","tools"] },
+  { name: "Privacy Guides", url: "https://www.privacyguides.org", desc: "Resources for protecting your internet privacy and security.", category: "Security", tags: ["privacy","guides","recommendations"] },
+  { name: "Bitwarden", url: "https://bitwarden.com", desc: "Open-source password manager for individuals and teams.", category: "Security", tags: ["passwords","vault","open-source"] },
+
+  // News & Media
+  { name: "TechCrunch", url: "https://techcrunch.com", desc: "Leading technology media property reporting on startups and tech.", category: "News", tags: ["tech","startups","media"] },
+  { name: "The Verge", url: "https://www.theverge.com", desc: "Technology, science, art, and culture news and stories.", category: "News", tags: ["tech","culture","reviews"] },
+  { name: "Ars Technica", url: "https://arstechnica.com", desc: "Original tech reporting and analysis for a technical audience.", category: "News", tags: ["tech","analysis","in-depth"] },
+  { name: "Reuters", url: "https://www.reuters.com", desc: "International news organization providing trusted coverage.", category: "News", tags: ["world","business","breaking"] },
+  { name: "Wired", url: "https://www.wired.com", desc: "Magazine covering how technology shapes culture, economy, and politics.", category: "News", tags: ["tech","culture","features"] },
+
+  // Tools & Utilities
+  { name: "Regex101", url: "https://regex101.com", desc: "Online regex tester and debugger with real-time explanation.", category: "Tools", tags: ["regex","testing","debugger"] },
+  { name: "JSON Formatter", url: "https://jsonformatter.org", desc: "Online tool to format, validate, and beautify JSON data.", category: "Tools", tags: ["json","formatter","validator"] },
+  { name: "Cloudflare", url: "https://www.cloudflare.com", desc: "Web infrastructure and security company providing CDN services.", category: "Tools", tags: ["cdn","dns","security"] },
+  { name: "Vercel", url: "https://vercel.com", desc: "Platform for frontend frameworks and static sites.", category: "Tools", tags: ["hosting","deploy","nextjs"] },
+  { name: "Netlify", url: "https://www.netlify.com", desc: "Platform for building and deploying modern web projects.", category: "Tools", tags: ["hosting","jamstack","deploy"] },
+  { name: "Postman", url: "https://www.postman.com", desc: "API platform for building, testing, and documenting APIs.", category: "Tools", tags: ["api","testing","collaboration"] },
+  { name: "WayBack Machine", url: "https://web.archive.org", desc: "Digital archive of the World Wide Web and other information.", category: "Tools", tags: ["archive","history","web"] },
+  { name: "SpeedTest", url: "https://www.speedtest.net", desc: "Test your internet connection bandwidth and latency.", category: "Tools", tags: ["speed","network","testing"] },
+
+  // Learning
+  { name: "freeCodeCamp", url: "https://www.freecodecamp.org", desc: "Free coding curriculum covering web development and more.", category: "Learning", tags: ["coding","free","curriculum"] },
+  { name: "Coursera", url: "https://www.coursera.org", desc: "Online courses from top universities and companies.", category: "Learning", tags: ["courses","university","certificates"] },
+  { name: "Khan Academy", url: "https://www.khanacademy.org", desc: "Free courses, lessons, and practice in math, science, and more.", category: "Learning", tags: ["free","education","k-12"] },
+  { name: "Codecademy", url: "https://www.codecademy.com", desc: "Interactive platform for learning to code in various languages.", category: "Learning", tags: ["coding","interactive","languages"] },
+  { name: "MIT OpenCourseWare", url: "https://ocw.mit.edu", desc: "Free lecture notes, exams, and videos from MIT.", category: "Learning", tags: ["free","university","lectures"] },
+  { name: "Brilliant", url: "https://brilliant.org", desc: "Interactive STEM learning through problem solving.", category: "Learning", tags: ["stem","math","interactive"] },
+
+  // Social & Community
+  { name: "Reddit", url: "https://www.reddit.com", desc: "Social news aggregation and discussion website.", category: "Social", tags: ["forums","community","discussion"] },
+  { name: "Discord", url: "https://discord.com", desc: "Voice, video, and text communication platform for communities.", category: "Social", tags: ["chat","gaming","communities"] },
+  { name: "Mastodon", url: "https://joinmastodon.org", desc: "Decentralized social networking platform.", category: "Social", tags: ["fediverse","decentralized","microblog"] },
+  { name: "Lemmy", url: "https://join-lemmy.org", desc: "Open-source link aggregator for the fediverse.", category: "Social", tags: ["fediverse","open-source","forums"] },
+  { name: "Bluesky", url: "https://bsky.app", desc: "Decentralized social media built on the AT Protocol.", category: "Social", tags: ["decentralized","microblog","social"] },
+
+  // Finance & Crypto
+  { name: "CoinGecko", url: "https://www.coingecko.com", desc: "Cryptocurrency data aggregator tracking prices and market data.", category: "Finance", tags: ["crypto","prices","charts"] },
+  { name: "Yahoo Finance", url: "https://finance.yahoo.com", desc: "Financial news, data, and commentary including stock quotes.", category: "Finance", tags: ["stocks","markets","news"] },
+  { name: "Investopedia", url: "https://www.investopedia.com", desc: "Financial education and information resource.", category: "Finance", tags: ["education","investing","terms"] },
+
+  // Entertainment
+  { name: "YouTube", url: "https://www.youtube.com", desc: "Video sharing platform for creators and viewers worldwide.", category: "Entertainment", tags: ["video","streaming","creators"] },
+  { name: "Twitch", url: "https://www.twitch.tv", desc: "Live streaming platform for gaming and creative content.", category: "Entertainment", tags: ["live","gaming","streaming"] },
+  { name: "Spotify", url: "https://www.spotify.com", desc: "Digital music, podcast, and video service.", category: "Entertainment", tags: ["music","podcasts","streaming"] },
+  { name: "IMDb", url: "https://www.imdb.com", desc: "World's most popular source for movie, TV, and celebrity content.", category: "Entertainment", tags: ["movies","tv","reviews"] },
+  { name: "Letterboxd", url: "https://letterboxd.com", desc: "Social film discovery, logging, and review platform.", category: "Entertainment", tags: ["movies","reviews","social"] },
+
+  // Self-Hosted & Open Source
+  { name: "Awesome Self-Hosted", url: "https://awesome-selfhosted.net", desc: "List of self-hosted software and services you can run.", category: "Self-Hosted", tags: ["selfhost","open-source","list"] },
+  { name: "Nextcloud", url: "https://nextcloud.com", desc: "Self-hosted productivity platform for file sync and collaboration.", category: "Self-Hosted", tags: ["cloud","files","selfhost"] },
+  { name: "Pi-hole", url: "https://pi-hole.net", desc: "Network-wide ad blocker via your own DNS sinkhole.", category: "Self-Hosted", tags: ["adblock","dns","raspberry-pi"] },
+  { name: "Home Assistant", url: "https://www.home-assistant.io", desc: "Open-source home automation platform.", category: "Self-Hosted", tags: ["automation","smart-home","iot"] },
+];
+
+// ===================== STATE =====================
+
+let state = {
+  currentView: 'discover',
+  currentFolder: null,
+  viewMode: 'grid',
+  searchQuery: '',
+  activeCategory: 'All',
+  folders: [],
+  bookmarks: [], // {siteUrl, folderId, addedAt}
+  customSites: [],
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('bookmarkvault_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.folders = parsed.folders || [];
+      state.bookmarks = parsed.bookmarks || [];
+      state.customSites = parsed.customSites || [];
+    }
+    if (state.folders.length === 0) {
+      state.folders = [
+        { id: genId(), name: 'Favorites', color: '#6c5ce7' },
+        { id: genId(), name: 'Read Later', color: '#00d2a0' },
+        { id: genId(), name: 'Work', color: '#4ea0ff' },
+      ];
+      saveState();
+    }
+  } catch(e) { console.error('Load state error:', e); }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('bookmarkvault_state', JSON.stringify({
+      folders: state.folders,
+      bookmarks: state.bookmarks,
+      customSites: state.customSites,
+    }));
+  } catch(e) { console.error('Save state error:', e); }
+}
+
+function genId() { return Math.random().toString(36).substr(2, 9); }
+
+function getAllSites() { return [...DEFAULT_SITES, ...state.customSites]; }
+
+function getCategories() {
+  const cats = new Set();
+  getAllSites().forEach(s => cats.add(s.category));
+  return ['All', ...Array.from(cats).sort()];
+}
+
+function isBookmarked(url) {
+  return state.bookmarks.some(b => b.siteUrl === url);
+}
+
+function getBookmarkFolders(url) {
+  return state.bookmarks.filter(b => b.siteUrl === url).map(b => b.folderId);
+}
+
+function getFolderBookmarks(folderId) {
+  const urls = state.bookmarks.filter(b => b.folderId === folderId).map(b => b.siteUrl);
+  return urls.map(url => getAllSites().find(s => s.url === url)).filter(Boolean);
+}
+
+// ===================== RENDERING =====================
+
+function render() {
+  renderSidebar();
+  renderContent();
+  updateCounts();
+}
+
+function renderSidebar() {
+  const folderList = document.getElementById('folderList');
+  folderList.innerHTML = state.folders.map(f => {
+    const count = state.bookmarks.filter(b => b.folderId === f.id).length;
+    const active = state.currentView === 'folder' && state.currentFolder === f.id ? ' active' : '';
+    return `
+      <div class="folder-item${active}" onclick="switchToFolder('${f.id}')">
+        <div class="folder-color" style="background:${f.color}"></div>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(f.name)}</span>
+        <span class="count">${count}</span>
+        <div class="folder-actions">
+          <button class="folder-action-btn" onclick="event.stopPropagation();openRenameFolderModal('${f.id}')" title="Rename">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="folder-action-btn delete" onclick="event.stopPropagation();deleteFolder('${f.id}')" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderContent() {
+  const discoverView = document.getElementById('discoverView');
+  const bookmarksView = document.getElementById('bookmarksView');
+
+  discoverView.style.display = 'none';
+  bookmarksView.style.display = 'none';
+  bookmarksView.classList.remove('active');
+
+  if (state.currentView === 'discover') {
+    discoverView.style.display = 'block';
+    renderCategories();
+    renderSites();
+  } else if (state.currentView === 'bookmarks') {
+    bookmarksView.style.display = 'block';
+    bookmarksView.classList.add('active');
+    renderBookmarksView();
+  } else if (state.currentView === 'folder') {
+    bookmarksView.style.display = 'block';
+    bookmarksView.classList.add('active');
+    renderFolderView();
+  }
+
+  // Update nav active states
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === state.currentView ||
+      (el.dataset.view === 'bookmarks' && state.currentView === 'folder'));
+  });
+}
+
+function renderCategories() {
+  const cats = getCategories();
+  document.getElementById('categoryTags').innerHTML = cats.map(c =>
+    `<div class="category-tag${state.activeCategory === c ? ' active' : ''}" onclick="setCategory('${escHtml(c)}')">${escHtml(c)}</div>`
+  ).join('');
+}
+
+function renderSites() {
+  const container = document.getElementById('sitesContainer');
+  let sites = getAllSites();
+
+  if (state.activeCategory !== 'All') {
+    sites = sites.filter(s => s.category === state.activeCategory);
+  }
+
+  if (state.searchQuery) {
+    const q = state.searchQuery.toLowerCase();
+    sites = sites.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.desc.toLowerCase().includes(q) ||
+      s.url.toLowerCase().includes(q) ||
+      s.category.toLowerCase().includes(q) ||
+      s.tags.some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  container.className = state.viewMode === 'grid' ? 'sites-grid' : 'sites-list';
+  document.getElementById('topbarStats').textContent = `${sites.length} site${sites.length !== 1 ? 's' : ''}`;
+
+  if (sites.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>No sites found</h3>
+        <p>Try a different search or category filter.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = sites.map((s, i) => renderSiteCard(s, i)).join('');
+}
+
+function renderSiteCard(site, index) {
+  const bookmarked = isBookmarked(site.url);
+  const domain = new URL(site.url).hostname;
+  const letter = site.name.charAt(0).toUpperCase();
+  const delay = Math.min(index * 30, 300);
+
+  return `
+    <div class="site-card" style="animation-delay:${delay}ms">
+      <div class="site-card-top">
+        <div class="site-favicon">
+          <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="">
+          <span class="fallback" style="display:none">${letter}</span>
+        </div>
+        <div class="site-info">
+          <div class="site-name">${escHtml(site.name)}</div>
+          <div class="site-url">${escHtml(domain)}</div>
+        </div>
+      </div>
+      <div class="site-description">${escHtml(site.desc)}</div>
+      <div class="site-card-bottom">
+        <span class="site-tag">${escHtml(site.category)}</span>
+        ${site.tags.slice(0, 2).map(t => `<span class="site-tag">${escHtml(t)}</span>`).join('')}
+        <div class="site-card-actions">
+          <a href="${escHtml(site.url)}" target="_blank" rel="noopener" class="site-action-btn" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Visit
+          </a>
+          <div style="position:relative">
+            <button class="site-action-btn ${bookmarked ? 'bookmarked' : ''}" onclick="event.stopPropagation();toggleBookmarkDropdown(this, '${escAttr(site.url)}')">
+              <svg viewBox="0 0 24 24" fill="${bookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              ${bookmarked ? 'Saved' : 'Save'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBookmarksView() {
+  const container = document.getElementById('bookmarksFolderContent');
+  const allBookmarkedUrls = [...new Set(state.bookmarks.map(b => b.siteUrl))];
+
+  if (allBookmarkedUrls.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <h3>No bookmarks yet</h3>
+        <p>Browse the Discover section and save sites to your folders.</p>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+  state.folders.forEach(folder => {
+    const sites = getFolderBookmarks(folder.id);
+    if (sites.length === 0) return;
+    html += `
+      <div class="bookmark-folder-section">
+        <div class="bookmark-folder-header">
+          <div class="folder-color" style="background:${folder.color}"></div>
+          <h3>${escHtml(folder.name)}</h3>
+          <span class="count">${sites.length}</span>
+        </div>
+        <div class="bookmark-folder-body${state.viewMode === 'list' ? ' list-view' : ''}">
+          ${sites.map((s, i) => renderSiteCard(s, i)).join('')}
+        </div>
+      </div>`;
+  });
+
+  // Unsorted bookmarks
+  const sortedUrls = state.bookmarks.map(b => b.siteUrl);
+  const unsorted = allBookmarkedUrls.filter(url => {
+    const folders = getBookmarkFolders(url);
+    return folders.length === 0;
+  });
+
+  if (unsorted.length > 0) {
+    const unsortedSites = unsorted.map(url => getAllSites().find(s => s.url === url)).filter(Boolean);
+    html += `
+      <div class="bookmark-folder-section">
+        <div class="bookmark-folder-header">
+          <div class="folder-color" style="background:var(--text-muted)"></div>
+          <h3>Unsorted</h3>
+          <span class="count">${unsortedSites.length}</span>
+        </div>
+        <div class="bookmark-folder-body${state.viewMode === 'list' ? ' list-view' : ''}">
+          ${unsortedSites.map((s, i) => renderSiteCard(s, i)).join('')}
+        </div>
+      </div>`;
+  }
+
+  container.innerHTML = html || `
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <h3>No bookmarks yet</h3>
+      <p>Browse the Discover section and save sites to your folders.</p>
+    </div>`;
+}
+
+function renderFolderView() {
+  const folder = state.folders.find(f => f.id === state.currentFolder);
+  if (!folder) { switchView('bookmarks'); return; }
+
+  const sites = getFolderBookmarks(folder.id);
+  const container = document.getElementById('bookmarksFolderContent');
+
+  document.querySelector('#bookmarksView .content-title').textContent = folder.name;
+  document.querySelector('#bookmarksView .content-subtitle').textContent = `${sites.length} bookmark${sites.length !== 1 ? 's' : ''} in this folder`;
+
+  if (sites.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <h3>Empty folder</h3>
+        <p>Save sites from Discover to add them here.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="${state.viewMode === 'grid' ? 'sites-grid' : 'sites-list'}">
+      ${sites.map((s, i) => renderSiteCard(s, i)).join('')}
+    </div>`;
+}
+
+function updateCounts() {
+  document.getElementById('discoverCount').textContent = getAllSites().length;
+  const uniqueBookmarks = [...new Set(state.bookmarks.map(b => b.siteUrl))].length;
+  document.getElementById('bookmarkCount').textContent = uniqueBookmarks;
+}
+
+// ===================== INTERACTIONS =====================
+
+function switchView(view) {
+  state.currentView = view;
+  state.currentFolder = null;
+  if (view === 'bookmarks') {
+    document.querySelector('#bookmarksView .content-title').textContent = 'My Bookmarks';
+    document.querySelector('#bookmarksView .content-subtitle').textContent = 'Manage your saved sites and folders';
+  }
+  render();
+}
+
+function switchToFolder(folderId) {
+  state.currentView = 'folder';
+  state.currentFolder = folderId;
+  render();
+}
+
+function setCategory(cat) {
+  state.activeCategory = cat;
+  renderCategories();
+  renderSites();
+}
+
+function setViewMode(mode) {
+  state.viewMode = mode;
+  document.querySelectorAll('.view-toggle').forEach(el =>
+    el.classList.toggle('active', el.dataset.view === mode));
+  renderContent();
+}
+
+function handleSearch() {
+  state.searchQuery = document.getElementById('searchInput').value;
+  if (state.currentView !== 'discover') {
+    state.currentView = 'discover';
+    state.activeCategory = 'All';
+  }
+  render();
+}
+
+// Bookmark dropdown
+let activeDropdown = null;
+
+function toggleBookmarkDropdown(btn, siteUrl) {
+  closeDropdowns();
+
+  const wrapper = btn.parentElement;
+  const existing = wrapper.querySelector('.folder-dropdown');
+  if (existing) { existing.remove(); return; }
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'folder-dropdown active';
+  const currentFolders = getBookmarkFolders(siteUrl);
+
+  dropdown.innerHTML = state.folders.map(f => `
+    <button class="folder-dropdown-item" onclick="event.stopPropagation();toggleBookmarkInFolder('${escAttr(siteUrl)}','${f.id}')">
+      <div class="folder-color" style="background:${f.color};width:8px;height:8px;border-radius:50%;flex-shrink:0"></div>
+      ${escHtml(f.name)}
+      ${currentFolders.includes(f.id) ? '<span class="check">&#10003;</span>' : ''}
+    </button>
+  `).join('') + `
+    <div style="border-top:1px solid var(--border);margin:4px 0"></div>
+    <button class="folder-dropdown-item" onclick="event.stopPropagation();quickBookmark('${escAttr(siteUrl)}')">
+      ${isBookmarked(siteUrl) ? '<span style="color:var(--red)">Remove All</span>' : '<span style="color:var(--green)">Quick Save</span>'}
+    </button>`;
+
+  wrapper.appendChild(dropdown);
+  activeDropdown = dropdown;
+
+  setTimeout(() => {
+    document.addEventListener('click', closeDropdowns, { once: true });
+  }, 10);
+}
+
+function closeDropdowns() {
+  document.querySelectorAll('.folder-dropdown').forEach(d => d.remove());
+  activeDropdown = null;
+}
+
+function toggleBookmarkInFolder(siteUrl, folderId) {
+  const idx = state.bookmarks.findIndex(b => b.siteUrl === siteUrl && b.folderId === folderId);
+  if (idx >= 0) {
+    state.bookmarks.splice(idx, 1);
+    const folder = state.folders.find(f => f.id === folderId);
+    showToast(`Removed from ${folder?.name || 'folder'}`, 'var(--red)');
+  } else {
+    state.bookmarks.push({ siteUrl, folderId, addedAt: Date.now() });
+    const folder = state.folders.find(f => f.id === folderId);
+    showToast(`Saved to ${folder?.name || 'folder'}`, 'var(--green)');
+  }
+  saveState();
+  closeDropdowns();
+  render();
+}
+
+function quickBookmark(siteUrl) {
+  if (isBookmarked(siteUrl)) {
+    state.bookmarks = state.bookmarks.filter(b => b.siteUrl !== siteUrl);
+    showToast('Removed from all folders', 'var(--red)');
+  } else {
+    const firstFolder = state.folders[0];
+    if (firstFolder) {
+      state.bookmarks.push({ siteUrl, folderId: firstFolder.id, addedAt: Date.now() });
+      showToast(`Saved to ${firstFolder.name}`, 'var(--green)');
+    }
+  }
+  saveState();
+  closeDropdowns();
+  render();
+}
+
+// ===================== FOLDERS =====================
+
+function openNewFolderModal() {
+  const colorSwatches = FOLDER_COLORS.map((c, i) =>
+    `<div class="color-swatch${i === 0 ? ' active' : ''}" style="background:${c}" data-color="${c}" onclick="selectColorSwatch(this)"></div>`
+  ).join('');
+
+  document.getElementById('modalContent').innerHTML = `
+    <h3>New Folder</h3>
+    <div class="modal-field">
+      <label>Folder Name</label>
+      <input type="text" id="folderNameInput" placeholder="e.g. Research, Recipes..." autofocus>
+    </div>
+    <div class="modal-field">
+      <label>Color</label>
+      <div class="color-picker-row">${colorSwatches}</div>
+    </div>
+    <div class="modal-buttons">
+      <button class="btn" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" onclick="createFolder()">Create</button>
+    </div>`;
+
+  document.getElementById('modalOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('folderNameInput')?.focus(), 100);
+}
+
+function openRenameFolderModal(folderId) {
+  const folder = state.folders.find(f => f.id === folderId);
+  if (!folder) return;
+
+  const colorSwatches = FOLDER_COLORS.map(c =>
+    `<div class="color-swatch${c === folder.color ? ' active' : ''}" style="background:${c}" data-color="${c}" onclick="selectColorSwatch(this)"></div>`
+  ).join('');
+
+  document.getElementById('modalContent').innerHTML = `
+    <h3>Edit Folder</h3>
+    <div class="modal-field">
+      <label>Folder Name</label>
+      <input type="text" id="folderNameInput" value="${escAttr(folder.name)}" autofocus>
+    </div>
+    <div class="modal-field">
+      <label>Color</label>
+      <div class="color-picker-row">${colorSwatches}</div>
+    </div>
+    <div class="modal-buttons">
+      <button class="btn" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" onclick="renameFolder('${folderId}')">Save</button>
+    </div>`;
+
+  document.getElementById('modalOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('folderNameInput')?.focus(), 100);
+}
+
+function selectColorSwatch(el) {
+  el.parentElement.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function createFolder() {
+  const name = document.getElementById('folderNameInput').value.trim();
+  if (!name) return;
+  const color = document.querySelector('.color-swatch.active')?.dataset.color || FOLDER_COLORS[0];
+  state.folders.push({ id: genId(), name, color });
+  saveState();
+  closeModalDirect();
+  render();
+  showToast(`Created folder "${name}"`, 'var(--green)');
+}
+
+function renameFolder(folderId) {
+  const folder = state.folders.find(f => f.id === folderId);
+  if (!folder) return;
+  const name = document.getElementById('folderNameInput').value.trim();
+  if (!name) return;
+  const color = document.querySelector('.color-swatch.active')?.dataset.color || folder.color;
+  folder.name = name;
+  folder.color = color;
+  saveState();
+  closeModalDirect();
+  render();
+  showToast('Folder updated', 'var(--green)');
+}
+
+function deleteFolder(folderId) {
+  state.folders = state.folders.filter(f => f.id !== folderId);
+  state.bookmarks = state.bookmarks.filter(b => b.folderId !== folderId);
+  if (state.currentFolder === folderId) {
+    state.currentView = 'bookmarks';
+    state.currentFolder = null;
+  }
+  saveState();
+  render();
+  showToast('Folder deleted', 'var(--red)');
+}
+
+// ===================== ADD SITE =====================
+
+function openAddSiteModal() {
+  const catOptions = getCategories().filter(c => c !== 'All').map(c =>
+    `<option value="${escAttr(c)}">${escHtml(c)}</option>`
+  ).join('');
+
+  document.getElementById('modalContent').innerHTML = `
+    <h3>Add Website</h3>
+    <div class="modal-field">
+      <label>Site Name</label>
+      <input type="text" id="addSiteName" placeholder="e.g. My Cool Site">
+    </div>
+    <div class="modal-field">
+      <label>URL</label>
+      <input type="url" id="addSiteUrl" placeholder="https://example.com">
+    </div>
+    <div class="modal-field">
+      <label>Description</label>
+      <input type="text" id="addSiteDesc" placeholder="Brief description">
+    </div>
+    <div class="modal-field">
+      <label>Category</label>
+      <select id="addSiteCat">
+        ${catOptions}
+        <option value="__new__">+ New Category</option>
+      </select>
+    </div>
+    <div class="modal-field" id="newCatField" style="display:none">
+      <label>New Category Name</label>
+      <input type="text" id="addSiteNewCat" placeholder="e.g. Gaming, Health...">
+    </div>
+    <div class="modal-field">
+      <label>Tags (comma-separated)</label>
+      <input type="text" id="addSiteTags" placeholder="e.g. tool, free, api">
+    </div>
+    <div class="modal-buttons">
+      <button class="btn" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" onclick="addCustomSite()">Add Site</button>
+    </div>`;
+
+  document.getElementById('addSiteCat').addEventListener('change', function() {
+    document.getElementById('newCatField').style.display = this.value === '__new__' ? 'block' : 'none';
+  });
+
+  document.getElementById('modalOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('addSiteName')?.focus(), 100);
+}
+
+function addCustomSite() {
+  const name = document.getElementById('addSiteName').value.trim();
+  let url = document.getElementById('addSiteUrl').value.trim();
+  const desc = document.getElementById('addSiteDesc').value.trim();
+  let category = document.getElementById('addSiteCat').value;
+  const tags = document.getElementById('addSiteTags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+  if (!name || !url) { showToast('Name and URL are required', 'var(--red)'); return; }
+  if (!url.startsWith('http')) url = 'https://' + url;
+
+  if (category === '__new__') {
+    category = document.getElementById('addSiteNewCat').value.trim();
+    if (!category) { showToast('Please enter a category name', 'var(--red)'); return; }
+  }
+
+  state.customSites.push({ name, url, desc: desc || 'No description provided.', category, tags });
+  saveState();
+  closeModalDirect();
+  render();
+  showToast(`Added "${name}"`, 'var(--green)');
+}
+
+// ===================== IMPORT / EXPORT =====================
+
+function openImportModal() {
+  document.getElementById('importFileInput').click();
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const html = e.target.result;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = doc.querySelectorAll('a');
+    let imported = 0;
+
+    // Try to parse folder structure
+    const dts = doc.querySelectorAll('dt');
+    let currentFolder = state.folders[0]?.id;
+
+    // Simple import: all links
+    const existingUrls = new Set(getAllSites().map(s => s.url));
+
+    links.forEach(link => {
+      const url = link.href;
+      const name = link.textContent.trim();
+      if (!url || !name || url.startsWith('javascript:') || url === 'about:blank') return;
+
+      // Find parent folder name from DL/DT structure
+      let folderName = null;
+      let parent = link.closest('dl');
+      if (parent) {
+        const prevDt = parent.previousElementSibling;
+        if (prevDt && prevDt.tagName === 'DT') {
+          const h3 = prevDt.querySelector('h3');
+          if (h3) folderName = h3.textContent.trim();
+        }
+      }
+
+      // Find or create folder
+      let targetFolderId = null;
+      if (folderName) {
+        let folder = state.folders.find(f => f.name.toLowerCase() === folderName.toLowerCase());
+        if (!folder) {
+          folder = { id: genId(), name: folderName, color: FOLDER_COLORS[state.folders.length % FOLDER_COLORS.length] };
+          state.folders.push(folder);
+        }
+        targetFolderId = folder.id;
+      } else {
+        targetFolderId = state.folders[0]?.id;
+      }
+
+      // Add site if not existing
+      if (!existingUrls.has(url)) {
+        state.customSites.push({
+          name,
+          url,
+          desc: link.getAttribute('description') || link.getAttribute('shortcuturl') || 'Imported bookmark.',
+          category: folderName || 'Imported',
+          tags: ['imported']
+        });
+        existingUrls.add(url);
+      }
+
+      // Add bookmark
+      if (targetFolderId && !state.bookmarks.find(b => b.siteUrl === url && b.folderId === targetFolderId)) {
+        state.bookmarks.push({ siteUrl: url, folderId: targetFolderId, addedAt: Date.now() });
+      }
+
+      imported++;
+    });
+
+    saveState();
+    render();
+    showToast(`Imported ${imported} bookmark${imported !== 1 ? 's' : ''}`, 'var(--green)');
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function exportBookmarks() {
+  const uniqueUrls = [...new Set(state.bookmarks.map(b => b.siteUrl))];
+  if (uniqueUrls.length === 0) {
+    showToast('No bookmarks to export', 'var(--orange)');
+    return;
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  let html = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<!-- This is an automatically generated file.
+     It will be read and overwritten.
+     DO NOT EDIT! -->
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>
+<H1>Bookmarks</H1>
+<DL><p>\n`;
+
+  html += `    <DT><H3 ADD_DATE="${now}" LAST_MODIFIED="${now}">BookmarkVault Export</H3>\n    <DL><p>\n`;
+
+  state.folders.forEach(folder => {
+    const sites = getFolderBookmarks(folder.id);
+    if (sites.length === 0) return;
+
+    html += `        <DT><H3 ADD_DATE="${now}" LAST_MODIFIED="${now}">${escHtml(folder.name)}</H3>\n        <DL><p>\n`;
+    sites.forEach(site => {
+      const addDate = state.bookmarks.find(b => b.siteUrl === site.url && b.folderId === folder.id)?.addedAt || Date.now();
+      html += `            <DT><A HREF="${escHtml(site.url)}" ADD_DATE="${Math.floor(addDate / 1000)}">${escHtml(site.name)}</A>\n`;
+    });
+    html += `        </DL><p>\n`;
+  });
+
+  html += `    </DL><p>\n</DL><p>\n`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bookmarkvault_export.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('Bookmarks exported successfully', 'var(--green)');
+}
+
+// ===================== MODALS =====================
+
+function closeModal(event) {
+  if (event.target === document.getElementById('modalOverlay')) {
+    closeModalDirect();
+  }
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// ===================== TOAST =====================
+
+function showToast(message, color = 'var(--accent)') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `
+    <span class="toast-icon" style="color:${color}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </span>
+    ${escHtml(message)}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ===================== UTILS =====================
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escAttr(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ===================== INIT =====================
+
+loadState();
+render();
+
+// Keyboard shortcut for search
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+</script>
+</body>
+</html>
