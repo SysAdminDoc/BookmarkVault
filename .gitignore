@@ -1,4 +1,4 @@
-# AI config
+# Local assistant configuration
 CLAUDE.md
 CODEX_CHANGELOG.md
 AGENTS.md
@@ -7,3 +7,4 @@ AGENTS.md
 .ai/
 PROJECT_CONTEXT.md
 CONTINUATION_PROMPT.md
+dist/

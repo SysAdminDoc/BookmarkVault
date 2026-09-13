@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">BookmarkVault logo</title>
+  <desc id="desc">A white bookmark inside a purple and pink rounded square.</desc>
+  <defs>
+    <linearGradient id="surface" x1="84" y1="68" x2="432" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8b7cff"/>
+      <stop offset="0.52" stop-color="#7659ed"/>
+      <stop offset="1" stop-color="#e660ae"/>
+    </linearGradient>
+    <linearGradient id="highlight" x1="96" y1="64" x2="320" y2="368" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#surface)"/>
+  <path d="M128 78h256a50 50 0 0 1 50 50v256a50 50 0 0 1-50 50H128a50 50 0 0 1-50-50V128a50 50 0 0 1 50-50Z" fill="none" stroke="url(#highlight)" stroke-width="10"/>
+  <path d="M174 141c0-22 18-40 40-40h84c22 0 40 18 40 40v254l-82-59-82 59V141Z" fill="none" stroke="#fff" stroke-width="30" stroke-linejoin="round"/>
+</svg>

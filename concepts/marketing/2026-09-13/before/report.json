@@ -1,0 +1,24 @@
+{
+  "searchStats": "4 sites",
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 (File not found)",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "metrics": {
+    "title": "BookmarkVault v0.0.2",
+    "description": null,
+    "themeColor": null,
+    "initialDatasetSize": null,
+    "visibleBookmarks": 0,
+    "storedState": true,
+    "bodyScrollWidth": 1440,
+    "viewportWidth": 1440,
+    "mobile": {
+      "sidebarDisplay": "none",
+      "hasVisibleNavigationControl": true,
+      "bodyScrollWidth": 390,
+      "viewportWidth": 390
+    }
+  }
+}

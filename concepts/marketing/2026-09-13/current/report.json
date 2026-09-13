@@ -1,0 +1,29 @@
+{
+  "searchStats": "4 sites",
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "metrics": {
+    "title": "BookmarkVault v0.0.3",
+    "description": "Search a 5,000-site starter directory, load the included 50,000-site pack, and keep bookmark folders in your browser.",
+    "themeColor": "#0a0a0f",
+    "initialDatasetSize": 5000,
+    "visibleBookmarks": 1,
+    "storedState": true,
+    "bodyScrollWidth": 1440,
+    "viewportWidth": 1440,
+    "mobile": {
+      "sidebarDisplay": "none",
+      "mobileNavDisplay": "grid",
+      "visibleMobileActions": [
+        "Discover",
+        "Bookmarks",
+        "Import",
+        "Export"
+      ],
+      "bodyScrollWidth": 390,
+      "viewportWidth": 390
+    }
+  }
+}
