@@ -6,6 +6,16 @@
 ![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-web-38bdf8?style=flat-square)
 
+<p align="center">
+  <a href="https://ko-fi.com/X8K126YVER">
+    <img height="42" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />
+  </a>
+</p>
+
+<p align="center">
+  <sub><em>If this project helps you, a coffee helps me keep working on it.</em></sub>
+</p>
+
 BookmarkVault is a local-first web directory that runs from one HTML page. Search the 5,000-site starter catalog, load the included 50,000-site pack when you want broader results, then save useful sites into folders stored by your browser.
 
 [Open the live app](https://sysadmindoc.github.io/BookmarkVault/) · [Download the latest release](https://github.com/SysAdminDoc/BookmarkVault/releases/latest)
